@@ -11,101 +11,97 @@
     <title>Fuel Tech Log Calculator</title>
 
     <style>
-        /* Estilos Base para asegurar que ocupe la pantalla */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 10px;
-            background-color: #f0f0f0; /* Un fondo neutro fuera de la tabla */
+            padding: 5px; /* Reducido padding externo */
+            background-color: #f0f0f0; 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* --- ESTILOS DE LA TABLA (Manteniendo fidelidad) --- */
+        /* --- ESTILOS DE LA TABLA --- */
         table {
             border-collapse: collapse;
-            background-color: gray; /* Color original */
+            background-color: gray;
             border: 2px solid black;
             text-align: center;
             width: 100%; 
-            max-width: 600px; /* Para que no se estire demasiado en PC */
-            font-size: 14px; /* Ajuste para que quepa en móvil */
+            max-width: 600px;
+            font-size: 13px; /* Fuente ligeramente más pequeña para que quepa todo */
             margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Un poco de sombra para resaltar */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            table-layout: fixed; /* Fuerza a respetar los anchos definidos */
         }
 
         th, td {
             border: 1px solid black;
-            padding: 4px;
+            padding: 2px; /* Padding reducido para ganar espacio interno */
+            overflow: hidden; /* Evita que contenido largo rompa la celda */
+            white-space: nowrap; /* Intenta mantener números en una línea */
+        }
+        
+        /* Permite que el texto de las etiquetas haga salto de línea si es necesario */
+        td.label-text {
+            white-space: normal;
+            line-height: 1.1;
         }
 
-        /* Altura de filas */
-        tr {
-            height: 50px;
-        }
+        tr { height: 50px; }
 
         /* --- ESTILOS DE LOS INPUTS --- */
         input[type="number"], input[type="text"] {
             text-align: right;
             border: 1px solid #ccc;
-            width: 100%; /* El input ocupa toda la celda */
-            height: 35px; /* Altura táctil cómoda */
-            box-sizing: border-box; /* Para que el padding no rompa el ancho */
-            font-size: 16px; /* Importante: 16px evita que iOS haga zoom al escribir */
+            width: 100%;
+            height: 38px;
+            box-sizing: border-box;
+            font-size: 16px; /* 16px evita zoom en iOS */
             font-weight: bold;
-            border-radius: 0; /* Aspecto clásico cuadrado */
-            -moz-appearance: textfield; /* Quitar flechas en Firefox */
+            border-radius: 0;
+            -moz-appearance: textfield;
             appearance: none;
+            padding-right: 2px;
         }
         
-        /* Quitar flechas de spinner en Chrome/Safari */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        /* Colores Específicos (Clases auxiliares) */
+        /* Clases de color */
         .bg-gray { background-color: gray; color: white; font-weight: bold; }
         .bg-yellow { background-color: yellow; }
         .bg-white { background-color: white; }
         
-        /* Inputs con colores específicos */
         input.gray-input { background-color: #A9A9A9; color: black; }
         input.white-input { background-color: white; color: black; }
         input.yellow-input { background-color: yellow; color: black; }
 
-        /* Validación visual */
         input:out-of-range {
-            border: 3px solid red;
+            border: 2px solid red;
             background-color: #ffcccc;
         }
         
-        /* Footer */
         .footer-info {
             font-weight: bold;
             margin-top: 10px;
             text-align: center;
         }
-        #expectedfuel, #expectedfuel1 {
-            color: #000;
-            margin: 5px 0;
-        }
         
-        /* Estilos para los Radio Buttons */
         .radio-group {
-            font-size: 12px;
+            font-size: 11px;
             color: black;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            padding-left: 2px;
         }
-        .radio-group label {
-            margin-bottom: 2px;
-        }
+        .radio-group label { margin-bottom: 1px; }
 
     </style>
 </head>
@@ -114,51 +110,54 @@
 
 <form onsubmit="return false;">
     <table>
+        <colgroup>
+            <col style="width: 30%;"> <col style="width: 5%;">  <col style="width: 25%;"> <col style="width: 20%;"> <col style="width: 20%;"> </colgroup>
         <tbody>
             <tr>
-                <td class="bg-gray" style="width:35%">ARRIVAL FUEL(KG)</td>
-                <td class="bg-gray" style="width:10%">A</td>
-                <td class="bg-yellow" style="width:25%">
+                <td class="bg-gray label-text">ARRIVAL FUEL(KG)</td>
+                <td class="bg-gray">A</td>
+                <td class="bg-yellow">
                     <input type="number" id="arrfuel" class="yellow-input" inputmode="decimal" placeholder="0" oninput="usedonground()"> 
                 </td>
-                <td class="bg-gray" style="width:20%">Fuel Tank<br>Ind</td>
-                <td class="bg-gray" style="width:10%">KG</td>
+                <td class="bg-gray label-text">Fuel Tank<br>Ind</td>
+                <td class="bg-gray">KG</td>
             </tr>
 
             <tr>
-                <td class="bg-gray">FUEL FIG BEFORE REFUEL (KG)</td>
+                <td class="bg-gray label-text">FUEL FIG BEFORE REFUEL</td>
                 <td class="bg-gray">B</td>
                 <td class="bg-white">
                     <input type="number" id="fuelbefore" class="gray-input" inputmode="decimal" placeholder="0" oninput="usedonground()">
                 </td>
-                <td class="bg-white">Left Hand</td>
+                <td class="bg-white label-text">Left Hand</td>
                 <td class="bg-white">
                     <input type="number" id="fuelleft" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>
             </tr>
 
             <tr>
-                <td class="bg-gray">USED ON GROUND (A-B)</td>
+                <td class="bg-gray label-text">USED ON GROUND (A-B)</td>
                 <td class="bg-gray">C</td>
                 <td class="bg-white">
                     <input type="number" id="usedgnd" class="white-input" value="0" readonly tabindex="-1">
                 </td>
-                <td class="bg-gray" colspan="2"></td> </tr>
+                <td class="bg-gray" colspan="2"></td>
+            </tr>
 
             <tr>
-                <td class="bg-gray">TOTAL REQ DEP FUEL (KG)</td>
+                <td class="bg-gray label-text">TOTAL REQ DEP FUEL</td>
                 <td class="bg-gray">D</td>
                 <td class="bg-yellow">
                     <input type="number" id="requiredfuel" class="yellow-input" inputmode="decimal" value="0" step="100" oninput="distribution()">
                 </td>
-                <td class="bg-white">Centre</td>
+                <td class="bg-white label-text">Centre</td>
                 <td class="bg-white">
                     <input type="number" id="fuelcenter" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>	
             </tr>
 
             <tr>
-                <td class="bg-gray">
+                <td class="bg-gray label-text">
                     METERED FUEL
                     <div class="radio-group">
                         <label><input type="radio" name="fuelunits" value="impg" onchange="conversionfactor()"> IMP G</label>
@@ -170,14 +169,14 @@
                 <td class="bg-white">
                     <input type="number" id="meteredfuel" class="gray-input" inputmode="decimal" value="0" oninput="meteredupliftf()">
                 </td>
-                <td class="bg-white">Right Hand</td>
+                <td class="bg-white label-text">Right Hand</td>
                 <td class="bg-white">
                     <input type="number" id="fuelright" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>
             </tr>
 
             <tr>
-                <td class="bg-gray">REFUELLING S.G.</td>
+                <td class="bg-gray label-text">REFUELLING S.G.</td>
                 <td class="bg-gray">F</td>
                 <td class="bg-white">
                     <input type="number" id="sg" class="gray-input" inputmode="decimal" value="0.7800" step="0.0001" oninput="conversionfactor()">
@@ -186,20 +185,20 @@
             </tr>
 
             <tr>
-                <td class="bg-gray">CONVERSION FACTOR</td>
+                <td class="bg-gray label-text">CONVERSION FACTOR</td>
                 <td class="bg-gray">G</td>
                 <td class="bg-white">
                     <input type="number" id="convfactor" class="white-input" value="1.2821" readonly tabindex="-1">
                 </td>
-                <td class="bg-white" rowspan="2">Total<br>Onboard</td>
+                <td class="bg-white label-text" rowspan="2">Total<br>Onboard</td>
                 <td class="bg-white" rowspan="2">
-                    <input type="number" id="total" class="white-input" value="0" readonly style="font-weight:bold; height:100%;">
+                    <input type="number" id="total" class="white-input" value="0" readonly style="font-weight:bold; height:100%; font-size:18px;">
                     <input type="hidden" id="totall">
                 </td>
             </tr>
 
             <tr>
-                <td class="bg-gray">METERED UPLIFT (KG)<br>(E / G)</td>
+                <td class="bg-gray label-text">METERED UPLIFT (KG)<br>(E / G)</td>
                 <td class="bg-gray">H</td>
                 <td class="bg-white">
                     <input type="number" id="metereduplift" class="white-input" readonly tabindex="-1">
@@ -207,7 +206,7 @@
             </tr>
 
             <tr>
-                <td class="bg-gray">ACTUAL UPLIFT (KG)<br>(I - B)</td>
+                <td class="bg-gray label-text">ACTUAL UPLIFT (KG)<br>(I - B)</td>
                 <td class="bg-gray">J</td>
                 <td class="bg-white">
                     <input type="number" id="actual" class="white-input" readonly tabindex="-1">
@@ -216,7 +215,7 @@
             </tr>
 
             <tr>
-                <td class="bg-gray">DISCREPANCY %<br>((H-J)/J)</td>
+                <td class="bg-gray label-text">DISCREPANCY %<br>((H-J)/J)</td>
                 <td class="bg-gray">K</td>
                 <td class="bg-white">
                     <input type="number" id="discrepancy" class="white-input" readonly tabindex="-1" style="font-weight:bold;">
@@ -234,7 +233,6 @@
 </form>
 
 <script type="text/javascript">
-    // Script optimizado para evitar errores con campos vacíos
 	function conversionfactor(){
 		let unidades = document.getElementsByName('fuelunits');
 		let convfactor = document.getElementById('convfactor');
@@ -315,21 +313,4 @@
         actual.value = actualVal.toFixed(0);
         
         if(actualVal !== 0){
-		    let discVal = ((meteredupliftVal - actualVal) / actualVal) * 100;
-            discrepancy.value = discVal.toFixed(2);
-            
-            if(Math.abs(discVal) > 3) {
-                discrepancy.style.color = "red";
-                discrepancy.style.backgroundColor = "#ffcccc"; // Alerta visual sutil
-            } else {
-                discrepancy.style.color = "black";
-                discrepancy.style.backgroundColor = "white";
-            }
-        } else {
-            discrepancy.value = "0";
-        }
-	}
-</script>
-
-</body>
-</html>
+		    let discVal = ((metereduplift
