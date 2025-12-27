@@ -34,7 +34,7 @@
             font-size: 13px;
             margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            table-layout: fixed; /* Mantiene las columnas firmes */
+            table-layout: fixed; 
         }
 
         th, td {
@@ -48,8 +48,15 @@
             font-weight: bold;
             color: white;
             font-size: 0.75rem;
-            white-space: normal; /* Permite saltos de línea */
+            white-space: normal;
             line-height: 1.1;
+        }
+        
+        td.label-dark {
+            font-weight: bold;
+            color: black;
+            font-size: 0.75rem;
+            background-color: white;
         }
 
         /* Altura de filas */
@@ -60,9 +67,9 @@
             text-align: right;
             border: 1px solid #ccc;
             width: 100%;
-            height: 40px; /* Altura cómoda para el dedo */
+            height: 40px;
             box-sizing: border-box;
-            font-size: 18px; /* Grande para leer fácil */
+            font-size: 18px; 
             font-weight: bold;
             border-radius: 0;
             -moz-appearance: textfield;
@@ -71,18 +78,16 @@
             display: block;
         }
         
-        /* Quitar flechas del input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        /* Colores de fondo */
+        /* Colores */
         .bg-gray { background-color: gray; }
         .bg-white { background-color: white; color: black;}
         
-        /* Colores de Inputs */
         .input-gray { background-color: #A9A9A9; color: black; }
         .input-white { background-color: white; color: black; }
         .input-yellow { background-color: #ffeb3b; color: black; border: 1px solid #fbc02d; }
@@ -93,7 +98,6 @@
             z-index: 10;
         }
 
-        /* Footer */
         .footer-info {
             font-weight: bold;
             margin-top: 10px;
@@ -101,7 +105,6 @@
             font-size: 1rem;
         }
         
-        /* Radio Buttons */
         .radio-group {
             font-size: 11px;
             color: white;
@@ -154,7 +157,7 @@
                 <td class="bg-white">
                     <input type="number" id="usedgnd" class="input-white" value="0" readonly tabindex="-1">
                 </td>
-                <td class="bg-gray" colspan="2"></td>
+                <td class="bg-white" colspan="2"></td>
             </tr>
 
             <tr>
@@ -203,11 +206,7 @@
                 <td class="bg-white">
                     <input type="number" id="convfactor" class="input-white" value="1.2821" readonly tabindex="-1">
                 </td>
-                <td class="bg-white" rowspan="2">Total<br>Onboard</td>
-                <td class="bg-white" rowspan="2">
-                    <input type="number" id="total" class="input-white" value="0" readonly style="font-weight:bold; height:100%; font-size: 20px;">
-                    <input type="hidden" id="totall" value="0">
-                </td>
+                <td class="bg-white" colspan="2"></td>
             </tr>
 
             <tr>
@@ -215,6 +214,19 @@
                 <td class="bg-gray label-text">H</td>
                 <td class="bg-white">
                     <input type="number" id="metereduplift" class="input-white" value="0" readonly tabindex="-1">
+                </td>
+                <td class="bg-white" colspan="2"></td>
+            </tr>
+
+            <tr>
+                <td class="bg-gray label-text">TOTAL ONBOARD(KG) ECAM/EICAS</td>
+                <td class="bg-gray label-text">I</td>
+                <td class="bg-white">
+                    <input type="number" id="totall" class="input-white" value="0" readonly tabindex="-1">
+                </td>
+                <td class="bg-white label-dark">Total<br>Onboard</td>
+                <td class="bg-white">
+                    <input type="number" id="total" class="input-white" value="0" readonly tabindex="-1">
                 </td>
             </tr>
 
@@ -246,14 +258,12 @@
 </form>
 
 <script type="text/javascript">
-    // --- LÓGICA ORIGINAL RESTAURADA ---
     
     function conversionfactor(){
         let unidades = document.getElementsByName('fuelunits');
         let convfactor = document.getElementById('convfactor');
         let sg = document.getElementById('sg');
         
-        // Verificación básica para evitar división por cero
         let sgValue = Number(sg.value);
         if(sgValue === 0) sgValue = 0.78; 
 
@@ -306,13 +316,16 @@
         let fuelleft = document.getElementById('fuelleft');
         let fuelcenter = document.getElementById('fuelcenter');
         let fuelright = document.getElementById('fuelright');
+        
+        // Recuperamos los dos campos de Total (I y el de la derecha)
         let total = document.getElementById('total');
-        let totall = document.getElementById('totall');
+        let totall = document.getElementById('totall'); // Casilla I
         
         let sum = Number(fuelleft.value) + Number(fuelcenter.value) + Number(fuelright.value);
         
+        // Actualizamos ambos
         total.value = sum;
-        totall.value = sum; // Importante: actualiza el campo oculto
+        totall.value = sum;
         
         meteredupliftf();
     }
@@ -321,29 +334,28 @@
         let metereduplift = document.getElementById('metereduplift');
         let meteredfuel = document.getElementById('meteredfuel');
         let convfactor = document.getElementById('convfactor');
-        let totall = document.getElementById('totall');
+        let totall = document.getElementById('totall'); // Usamos la casilla I para el cálculo
         let fuelbefore = document.getElementById('fuelbefore');
         let actual = document.getElementById('actual');
         let discrepancy = document.getElementById('discrepancy');
         
         let meteredValue = Number(meteredfuel.value);
         let convValue = Number(convfactor.value);
-        if(convValue === 0) convValue = 1; // Protección
+        if(convValue === 0) convValue = 1; 
         
-        // Cálculo Metered Uplift
+        // Cálculo Metered Uplift (H)
         let upliftCalc = (meteredValue / convValue);
         metereduplift.value = upliftCalc.toFixed(0);
         
-        // Cálculo Actual Uplift
+        // Cálculo Actual Uplift (J) = I - B
         let actualCalc = (Number(totall.value) - Number(fuelbefore.value));
         actual.value = actualCalc.toFixed(0);
         
-        // Cálculo Discrepancy
+        // Cálculo Discrepancy (K)
         if(actualCalc !== 0){
             let discCalc = (((upliftCalc - actualCalc) / actualCalc) * 100);
             discrepancy.value = discCalc.toFixed(2);
             
-            // Cambio de color si excede 3%
             if(Math.abs(discCalc) > 3) {
                 discrepancy.style.backgroundColor = "#ffcccc";
                 discrepancy.style.color = "red";
