@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fuel Log">
+    <title>Fuel Tech Log Calculator</title>
+
+    <style>
+        /* --- Variables de Color (Soporte Modo Claro/Oscuro Automático) --- */
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-color: #000000;
+            --input-bg: #e5e5ea;
+            --input-text: #000000;
+            --accent-color: #007aff; /* Azul sistema iOS */
+            --readonly-bg: #f2f2f7;
+            --border-color: #c6c6c8;
+            --danger-color: #ff3b30;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --card-bg: #1c1c1e;
+                --text-color: #ffffff;
+                --input-bg: #2c2c2e;
+                --input-text: #ffffff;
+                --readonly-bg: #000000;
+                --border-color: #38383a;
+            }
+        }
+
+        /* --- Reset y Estilos Base --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 80px; /* Espacio extra abajo para scroll */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Tarjetas (Cards) --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #8e8e93;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Inputs y Grid --- */
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 110px; /* Texto ocupa resto, Input ancho fijo */
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+            min-height: 44px; /* Altura mínima táctil de Apple */
+        }
+
+        .input-group label {
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .tank-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .tank-item {
+            text-align: center;
+        }
+        .tank-item label {
+            display: block;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            color: #8e8e93;
+            text-transform: uppercase;
+        }
+
+        /* --- Estilo de los Campos de Texto --- */
+        input[type="number"] {
+            width: 100%;
+            height: 40px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1px solid transparent; /* Borde transparente por defecto */
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            font-size: 1.2rem; /* Tamaño grande para legibilidad */
+            text-align: right;
+            box-sizing: border-box;
+            -moz-appearance: textfield; /* Quitar flechas en Firefox */
+            appearance: none;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Inputs Editables (Focus) */
+        input:not([readonly]):focus {
+            outline: none;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-color);
+        }
+
+        /* Inputs de Solo Lectura (Readonly) */
+        input[readonly] {
+            background-color: var(--readonly-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            opacity: 1; /* Fix para iOS que oscurece disabled/readonly */
+        }
+
+        /* Error visual */
+        .error-text {
+            color: var(--danger-color);
+        }
+
+        /* --- Selector de Unidades (Segmented Control) --- */
+        .segmented-control {
+            display: flex;
+            background-color: var(--input-bg);
+            border-radius: 9px;
+            padding: 2px;
+            margin-bottom: 15px;
+        }
+        
+        .segmented-control label {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .segmented-control input[type="radio"] {
+            display: none;
+        }
+
+        /* Efecto seleccionado */
+        .segmented-control input[type="radio"]:checked + label {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            font-weight: 600;
+        }
+
+        /* --- Footer y Extras --- */
+        .unit-label { 
+            font-size: 0.75rem; 
+            color: #8e8e93; 
+            text-align: right; 
+            display: block;
+            margin-top: 2px;
+        }
+
+        #expectedfuel, #expectedfuel1 {
+            font-weight: 600;
+            color: var(--accent-color);
+            text-align: center;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+
+        .wrapper-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border-color);
+            margin: 15px 0;
+        }
+
+        .info-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8e8e93;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<form onsubmit="return false;"> <h2>Fuel Tech Log v1.6</h2>
+
+    <div class="card">
+        <div class="card-title">Arrival & Ground</div>
+        
+        <div class="input-group">
+            <label>Arrival Fuel (A)</label>
+            <div class="wrapper-input">
+                <input type="number" id="arrfuel" inputmode="decimal" placeholder="0" oninput="usedonground()">
+                <span class="unit-label">KG</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Before Refuel (B)</label>
+            <div class="wrapper-input">
+                <input type="number" id="fuelbefore" inputmode="decimal" placeholder="0" oninput="usedonground()">
+                <span class="unit-label">KG</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Used on Gnd (C)</label>
+            <div class="wrapper-input">
+                <input type="number" id="usedgnd" readonly tabindex="-1">
+                <span class="unit-label">A - B</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Tank Distribution</div>
+        
+        <div class="input-group">
+            <label>Req. Dep. Fuel (D)</label>
+            <div class="wrapper-input">
+                <input type="number" id="requiredfuel" inputmode="decimal" step="100" placeholder="0" oninput="distribution()">
+                <span class="unit-label">KG</span>
+            </div>
+        </div>
+        
+        <p id="expectedfuel1">Exp Dist: LT / CT / RT</p>
+
+        <div class="tank-grid">
+            <div class="tank-item">
+                <label>Left</label>
+                <input type="number" id="fuelleft" inputmode="decimal" placeholder="0" oninput="totalonboard()">
+            </div>
+            <div class="tank-item">
+                <label>Center</label>
+                <input type="number" id="fuelcenter" inputmode="decimal" placeholder="0" oninput="totalonboard()">
+            </div>
+            <div class="tank-item">
+                <label>Right</label>
+                <input type="number" id="fuelright" inputmode="decimal" placeholder="0" oninput="totalonboard()">
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-top:15px;">
+            <label><strong>Total Onboard (I)</strong></label>
+            <div class="wrapper-input">
+                <input type="number" id="total" readonly tabindex="-1" style="color:var(--accent-color); font-weight:700;">
+                <input type="hidden" id="totall"> 
+                <span class="unit-label">Sum of Tanks</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Refueling & Uplift</div>
+
+        <div class="segmented-control">
+            <input type="radio" name="fuelunits" value="impg" id="RadioGroup1_0" onchange="conversionfactor()">
+            <label for="RadioGroup1_0">IMP G</label>
+
+            <input type="radio" name="fuelunits" value="usg" id="RadioGroup1_1" onchange="conversionfactor()">
+            <label for="RadioGroup1_1">US G</label>
+
+            <input type="radio" name="fuelunits" value="lts" id="RadioGroup1_2" onchange="conversionfactor()" checked>
+            <label for="RadioGroup1_2">Liters</label>
+        </div>
+
+        <div class="input-group">
+            <label>Metered Fuel (E)</label>
+            <input type="number" id="meteredfuel" inputmode="decimal" placeholder="0" oninput="meteredupliftf()">
+        </div>
+
+        <div class="input-group">
+            <label>S.G.</label>
+            <input type="number" id="sg" inputmode="decimal" value="0.7800" step="0.0001" oninput="conversionfactor()">
+        </div>
+
+        <div class="input-group">
+            <label>Conv. Factor (G)</label>
+            <input type="number" id="convfactor" value="1.2821" readonly tabindex="-1">
+        </div>
+        
+        <hr>
+
+        <div class="input-group">
+            <label>Metered Uplift (H)</label>
+            <div class="wrapper-input">
+                <input type="number" id="metereduplift" readonly tabindex="-1">
+                <span class="unit-label">E / G (KG)</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Actual Uplift (J)</label>
+            <div class="wrapper-input">
+                <input type="number" id="actual" readonly tabindex="-1">
+                <span class="unit-label">I - B (KG)</span>
+            </div>
+        </div>
+        
+        <p id="expectedfuel">Exp Qty = </p>
+
+        <div class="input-group" style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+            <label><strong>Discrepancy (K)</strong></label>
+            <div class="wrapper-input">
+                <input type="number" id="discrepancy" readonly tabindex="-1" style="font-weight:800;">
+                <span class="unit-label">%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-footer">
+        <p>Use at your own risk!</p>
+    </div>
+</form>
+
+<script type="text/javascript">
+    // --- FUNCIONES DE CÁLCULO ---
+    // Optimizadas para evitar errores con campos vacíos
+
+	function conversionfactor(){
+		let unidades = document.getElementsByName('fuelunits');
+		let convfactor = document.getElementById('convfactor');
+		let sg = document.getElementById('sg');
+        let sgVal = parseFloat(sg.value) || 0.78; // Fallback por seguridad
+		
+		if (unidades[0].checked){
+			convfactor.value=(0.22/sgVal).toFixed(4);
+		} else if (unidades[1].checked){
+			convfactor.value=(0.2642/sgVal).toFixed(4);
+		} else if (unidades[2].checked){
+			convfactor.value=(1/sgVal).toFixed(4);
+		}
+		meteredupliftf();
+	}
+	
+	function distribution(){
+		let requiredfuel = parseFloat(document.getElementById('requiredfuel').value) || 0;
+		let unidades = document.getElementsByName('fuelunits');
+		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
+		
+		if(requiredfuel <= 7600){
+			document.getElementById("expectedfuel1").innerHTML = "Exp: LT=" + (requiredfuel/2).toFixed(0) + " / CT=0 / RT=" + (requiredfuel/2).toFixed(0);
+		} else {
+			document.getElementById("expectedfuel1").innerHTML = "Exp: LT=3800 / CT=" + (requiredfuel-7600).toFixed(0) + " / RT=3800";
+		}
+		
+        let diff = requiredfuel - fuelbefore;
+        let msg = "";
+
+		if (unidades[0].checked){
+			msg = "I.Gal exp= " + (diff*0.2820).toFixed(0);
+		} else if (unidades[1].checked){
+			msg = "US Gal exp= " + (diff*0.3387).toFixed(0);
+		} else if (unidades[2].checked){
+			msg = "Lts exp= " + (diff*1.2821).toFixed(0);
+		}
+        document.getElementById("expectedfuel").innerHTML = msg;
+	}
+	
+	function usedonground(){
+		let arrfuel = parseFloat(document.getElementById('arrfuel').value) || 0;
+		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
+		let usedgnd = document.getElementById('usedgnd');
+        
+        // Solo calcular si hay valores lógicos
+        if(arrfuel > 0 || fuelbefore > 0) {
+		    usedgnd.value = (arrfuel - fuelbefore).toFixed(0);
+        }
+	}
+
+	function totalonboard(){
+		let fuelleft = parseFloat(document.getElementById('fuelleft').value) || 0;
+		let fuelcenter = parseFloat(document.getElementById('fuelcenter').value) || 0;
+		let fuelright = parseFloat(document.getElementById('fuelright').value) || 0;
+		let total = document.getElementById('total');
+		let totall = document.getElementById('totall');
+		
+        let sum = fuelleft + fuelcenter + fuelright;
+		total.value = sum;
+		totall.value = sum;
+		meteredupliftf();
+	}
+
+	function meteredupliftf(){
+		let meteredfuel = parseFloat(document.getElementById('meteredfuel').value) || 0;
+		let convfactor = parseFloat(document.getElementById('convfactor').value) || 1;
+		let totall = parseFloat(document.getElementById('totall').value) || 0;
+		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
+		
+        let metereduplift = document.getElementById('metereduplift');
+		let actual = document.getElementById('actual');
+		let discrepancy = document.getElementById('discrepancy');
+		
+        // Calcular Uplifts
+		let meteredupliftVal = (meteredfuel / convfactor);
+        metereduplift.value = meteredupliftVal.toFixed(0);
+
+		let actualVal = (totall - fuelbefore);
+        actual.value = actualVal.toFixed(0);
+        
+        // Calcular Discrepancia
+        if(actualVal !== 0){
+		    let discVal = ((meteredupliftVal - actualVal) / actualVal) * 100;
+            discrepancy.value = discVal.toFixed(2);
+            
+            // Color condicional: Rojo si > 3% o < -3%
+            if(Math.abs(discVal) > 3) {
+                discrepancy.style.color = "var(--danger-color)";
+            } else {
+                discrepancy.style.color = "var(--text-color)";
+            }
+        } else {
+            discrepancy.value = "0";
+            discrepancy.style.color = "var(--text-color)";
+        }
+	}
+</script>
+
+</body>
+</html>
