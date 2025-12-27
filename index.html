@@ -12,17 +12,18 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 5px; /* Reducido padding externo */
-            background-color: #f0f0f0; 
+            padding: 5px;
+            background-color: #f2f2f7; 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            color: black;
         }
 
-        /* --- ESTILOS DE LA TABLA --- */
+        /* TABLA PRINCIPAL */
         table {
             border-collapse: collapse;
             background-color: gray;
@@ -30,78 +31,90 @@
             text-align: center;
             width: 100%; 
             max-width: 600px;
-            font-size: 13px; /* Fuente ligeramente más pequeña para que quepa todo */
+            font-size: 13px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            table-layout: fixed; /* Fuerza a respetar los anchos definidos */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            table-layout: fixed; /* Mantiene las columnas firmes */
         }
 
         th, td {
             border: 1px solid black;
-            padding: 2px; /* Padding reducido para ganar espacio interno */
-            overflow: hidden; /* Evita que contenido largo rompa la celda */
-            white-space: nowrap; /* Intenta mantener números en una línea */
+            padding: 2px;
+            vertical-align: middle;
         }
         
-        /* Permite que el texto de las etiquetas haga salto de línea si es necesario */
+        /* Etiquetas de texto */
         td.label-text {
-            white-space: normal;
+            font-weight: bold;
+            color: white;
+            font-size: 0.75rem;
+            white-space: normal; /* Permite saltos de línea */
             line-height: 1.1;
         }
 
-        tr { height: 50px; }
+        /* Altura de filas */
+        tr { height: 48px; }
 
-        /* --- ESTILOS DE LOS INPUTS --- */
+        /* INPUTS */
         input[type="number"], input[type="text"] {
             text-align: right;
             border: 1px solid #ccc;
             width: 100%;
-            height: 38px;
+            height: 40px; /* Altura cómoda para el dedo */
             box-sizing: border-box;
-            font-size: 16px; /* 16px evita zoom en iOS */
+            font-size: 18px; /* Grande para leer fácil */
             font-weight: bold;
             border-radius: 0;
             -moz-appearance: textfield;
             appearance: none;
-            padding-right: 2px;
+            padding-right: 5px;
+            display: block;
         }
         
+        /* Quitar flechas del input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        /* Clases de color */
-        .bg-gray { background-color: gray; color: white; font-weight: bold; }
-        .bg-yellow { background-color: yellow; }
-        .bg-white { background-color: white; }
+        /* Colores de fondo */
+        .bg-gray { background-color: gray; }
+        .bg-white { background-color: white; color: black;}
         
-        input.gray-input { background-color: #A9A9A9; color: black; }
-        input.white-input { background-color: white; color: black; }
-        input.yellow-input { background-color: yellow; color: black; }
+        /* Colores de Inputs */
+        .input-gray { background-color: #A9A9A9; color: black; }
+        .input-white { background-color: white; color: black; }
+        .input-yellow { background-color: #ffeb3b; color: black; border: 1px solid #fbc02d; }
 
-        input:out-of-range {
-            border: 2px solid red;
-            background-color: #ffcccc;
+        /* Validación visual */
+        input:focus {
+            outline: 2px solid #007aff;
+            z-index: 10;
         }
-        
+
+        /* Footer */
         .footer-info {
             font-weight: bold;
             margin-top: 10px;
             text-align: center;
+            font-size: 1rem;
         }
         
+        /* Radio Buttons */
         .radio-group {
             font-size: 11px;
-            color: black;
+            color: white;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            padding-left: 2px;
+            justify-content: center;
+            height: 100%;
+            padding-left: 5px;
         }
-        .radio-group label { margin-bottom: 1px; }
+        .radio-group label { margin-bottom: 2px; display: flex; align-items: center; }
+        .radio-group input { margin-right: 5px; height: auto; width: auto; }
 
     </style>
 </head>
@@ -111,48 +124,48 @@
 <form onsubmit="return false;">
     <table>
         <colgroup>
-            <col style="width: 30%;"> <col style="width: 5%;">  <col style="width: 25%;"> <col style="width: 20%;"> <col style="width: 20%;"> </colgroup>
+            <col style="width: 28%;"> <col style="width: 5%;">  <col style="width: 25%;"> <col style="width: 20%;"> <col style="width: 22%;"> </colgroup>
         <tbody>
             <tr>
                 <td class="bg-gray label-text">ARRIVAL FUEL(KG)</td>
-                <td class="bg-gray">A</td>
-                <td class="bg-yellow">
-                    <input type="number" id="arrfuel" class="yellow-input" inputmode="decimal" placeholder="0" oninput="usedonground()"> 
+                <td class="bg-gray label-text">A</td>
+                <td style="background-color: #ffeb3b;">
+                    <input type="number" id="arrfuel" class="input-yellow" inputmode="decimal" value="0" oninput="usedonground()"> 
                 </td>
                 <td class="bg-gray label-text">Fuel Tank<br>Ind</td>
-                <td class="bg-gray">KG</td>
+                <td class="bg-gray label-text">KG</td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">FUEL FIG BEFORE REFUEL</td>
-                <td class="bg-gray">B</td>
+                <td class="bg-gray label-text">B</td>
                 <td class="bg-white">
-                    <input type="number" id="fuelbefore" class="gray-input" inputmode="decimal" placeholder="0" oninput="usedonground()">
+                    <input type="number" id="fuelbefore" class="input-gray" inputmode="decimal" value="0" oninput="usedonground()">
                 </td>
-                <td class="bg-white label-text">Left Hand</td>
+                <td class="bg-white">Left Hand</td>
                 <td class="bg-white">
-                    <input type="number" id="fuelleft" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
+                    <input type="number" id="fuelleft" class="input-white" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">USED ON GROUND (A-B)</td>
-                <td class="bg-gray">C</td>
+                <td class="bg-gray label-text">C</td>
                 <td class="bg-white">
-                    <input type="number" id="usedgnd" class="white-input" value="0" readonly tabindex="-1">
+                    <input type="number" id="usedgnd" class="input-white" value="0" readonly tabindex="-1">
                 </td>
                 <td class="bg-gray" colspan="2"></td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">TOTAL REQ DEP FUEL</td>
-                <td class="bg-gray">D</td>
-                <td class="bg-yellow">
-                    <input type="number" id="requiredfuel" class="yellow-input" inputmode="decimal" value="0" step="100" oninput="distribution()">
+                <td class="bg-gray label-text">D</td>
+                <td style="background-color: #ffeb3b;">
+                    <input type="number" id="requiredfuel" class="input-yellow" inputmode="decimal" value="0" step="100" oninput="distribution()">
                 </td>
-                <td class="bg-white label-text">Centre</td>
+                <td class="bg-white">Centre</td>
                 <td class="bg-white">
-                    <input type="number" id="fuelcenter" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
+                    <input type="number" id="fuelcenter" class="input-white" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>	
             </tr>
 
@@ -165,60 +178,60 @@
                         <label><input type="radio" name="fuelunits" value="lts" onchange="conversionfactor()" checked> LTS</label>
                     </div>
                 </td>
-                <td class="bg-gray">E</td>
+                <td class="bg-gray label-text">E</td>
                 <td class="bg-white">
-                    <input type="number" id="meteredfuel" class="gray-input" inputmode="decimal" value="0" oninput="meteredupliftf()">
+                    <input type="number" id="meteredfuel" class="input-gray" inputmode="decimal" value="0" oninput="meteredupliftf()">
                 </td>
-                <td class="bg-white label-text">Right Hand</td>
+                <td class="bg-white">Right Hand</td>
                 <td class="bg-white">
-                    <input type="number" id="fuelright" class="white-input" inputmode="decimal" value="0" oninput="totalonboard()">
+                    <input type="number" id="fuelright" class="input-white" inputmode="decimal" value="0" oninput="totalonboard()">
                 </td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">REFUELLING S.G.</td>
-                <td class="bg-gray">F</td>
+                <td class="bg-gray label-text">F</td>
                 <td class="bg-white">
-                    <input type="number" id="sg" class="gray-input" inputmode="decimal" value="0.7800" step="0.0001" oninput="conversionfactor()">
+                    <input type="number" id="sg" class="input-gray" inputmode="decimal" value="0.7800" step="0.0001" oninput="conversionfactor()">
                 </td>
                 <td class="bg-white" colspan="2"></td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">CONVERSION FACTOR</td>
-                <td class="bg-gray">G</td>
+                <td class="bg-gray label-text">G</td>
                 <td class="bg-white">
-                    <input type="number" id="convfactor" class="white-input" value="1.2821" readonly tabindex="-1">
+                    <input type="number" id="convfactor" class="input-white" value="1.2821" readonly tabindex="-1">
                 </td>
-                <td class="bg-white label-text" rowspan="2">Total<br>Onboard</td>
+                <td class="bg-white" rowspan="2">Total<br>Onboard</td>
                 <td class="bg-white" rowspan="2">
-                    <input type="number" id="total" class="white-input" value="0" readonly style="font-weight:bold; height:100%; font-size:18px;">
-                    <input type="hidden" id="totall">
+                    <input type="number" id="total" class="input-white" value="0" readonly style="font-weight:bold; height:100%; font-size: 20px;">
+                    <input type="hidden" id="totall" value="0">
                 </td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">METERED UPLIFT (KG)<br>(E / G)</td>
-                <td class="bg-gray">H</td>
+                <td class="bg-gray label-text">H</td>
                 <td class="bg-white">
-                    <input type="number" id="metereduplift" class="white-input" readonly tabindex="-1">
+                    <input type="number" id="metereduplift" class="input-white" value="0" readonly tabindex="-1">
                 </td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">ACTUAL UPLIFT (KG)<br>(I - B)</td>
-                <td class="bg-gray">J</td>
+                <td class="bg-gray label-text">J</td>
                 <td class="bg-white">
-                    <input type="number" id="actual" class="white-input" readonly tabindex="-1">
+                    <input type="number" id="actual" class="input-white" value="0" readonly tabindex="-1">
                 </td>
                 <td class="bg-gray" colspan="2"></td>
             </tr>
 
             <tr>
                 <td class="bg-gray label-text">DISCREPANCY %<br>((H-J)/J)</td>
-                <td class="bg-gray">K</td>
+                <td class="bg-gray label-text">K</td>
                 <td class="bg-white">
-                    <input type="number" id="discrepancy" class="white-input" readonly tabindex="-1" style="font-weight:bold;">
+                    <input type="number" id="discrepancy" class="input-white" readonly tabindex="-1" style="font-weight:bold;">
                 </td>
                 <td class="bg-gray" colspan="2"></td>
             </tr>
@@ -226,91 +239,125 @@
     </table>
 
     <div class="footer-info">
-        <p id="expectedfuel">Exp qty=</p>
-        <p id="expectedfuel1">LT CT RT</p>
-        <p style="color:red; font-size: 0.8rem;">USE AT YOUR OWN RISK!</p>
+        <p id="expectedfuel" style="color: #007aff;">Exp qty=</p>
+        <p id="expectedfuel1" style="color: #007aff;">LT CT RT</p>
+        <p style="color:red; font-size: 0.8rem; margin-top:20px;">USE AT YOUR OWN RISK!</p>
     </div>
 </form>
 
 <script type="text/javascript">
-	function conversionfactor(){
-		let unidades = document.getElementsByName('fuelunits');
-		let convfactor = document.getElementById('convfactor');
-		let sg = document.getElementById('sg');
-        let sgVal = parseFloat(sg.value) || 0.78;
-		
-		if (unidades[0].checked){
-			convfactor.value=(0.22/sgVal).toFixed(4);
-		} else if (unidades[1].checked){
-			convfactor.value=(0.2642/sgVal).toFixed(4);
-		} else if (unidades[2].checked){
-			convfactor.value=(1/sgVal).toFixed(4);
-		}
-		meteredupliftf();
-	}
-	
-	function distribution(){
-		let requiredfuel = parseFloat(document.getElementById('requiredfuel').value) || 0;
-		let unidades = document.getElementsByName('fuelunits');
-		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
-		
-		if(requiredfuel <= 7600){
-			document.getElementById("expectedfuel1").innerHTML = "LT=" + (requiredfuel/2).toFixed(0) + " CT=0 " + "RT=" + (requiredfuel/2).toFixed(0);
-		} else {
-			document.getElementById("expectedfuel1").innerHTML = "LT=3800 " + "CT=" + (requiredfuel-7600).toFixed(0) + " RT=3800";
-		}
-		
-        let diff = requiredfuel - fuelbefore;
-        let msg = "";
-
-		if (unidades[0].checked){
-			msg = "I.Gal exp= " + (diff*0.2820).toFixed(0);
-		} else if (unidades[1].checked){
-			msg = "US Gal exp= " + (diff*0.3387).toFixed(0);
-		} else if (unidades[2].checked){
-			msg = "Lts exp= " + (diff*1.2821).toFixed(0);
-		}
-        document.getElementById("expectedfuel").innerHTML = msg;
-	}
-	
-	function usedonground(){
-		let arrfuel = parseFloat(document.getElementById('arrfuel').value) || 0;
-		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
-		let usedgnd = document.getElementById('usedgnd');
+    // --- LÓGICA ORIGINAL RESTAURADA ---
+    
+    function conversionfactor(){
+        let unidades = document.getElementsByName('fuelunits');
+        let convfactor = document.getElementById('convfactor');
+        let sg = document.getElementById('sg');
         
-        if(arrfuel > 0 || fuelbefore > 0) {
-		    usedgnd.value = (arrfuel - fuelbefore).toFixed(0);
+        // Verificación básica para evitar división por cero
+        let sgValue = Number(sg.value);
+        if(sgValue === 0) sgValue = 0.78; 
+
+        if (unidades[0].checked){
+            convfactor.value=(0.22/sgValue).toFixed(4);
+        } else if (unidades[1].checked){
+            convfactor.value=(0.2642/sgValue).toFixed(4);
+        } else if (unidades[2].checked){
+            convfactor.value=(1/sgValue).toFixed(4);
         }
-	}
-
-	function totalonboard(){
-		let fuelleft = parseFloat(document.getElementById('fuelleft').value) || 0;
-		let fuelcenter = parseFloat(document.getElementById('fuelcenter').value) || 0;
-		let fuelright = parseFloat(document.getElementById('fuelright').value) || 0;
-		let total = document.getElementById('total');
-		let totall = document.getElementById('totall');
-		
-        let sum = fuelleft + fuelcenter + fuelright;
-		total.value = sum;
-		totall.value = sum;
-		meteredupliftf();
-	}
-
-	function meteredupliftf(){
-		let meteredfuel = parseFloat(document.getElementById('meteredfuel').value) || 0;
-		let convfactor = parseFloat(document.getElementById('convfactor').value) || 1;
-		let totall = parseFloat(document.getElementById('totall').value) || 0;
-		let fuelbefore = parseFloat(document.getElementById('fuelbefore').value) || 0;
-		
-        let metereduplift = document.getElementById('metereduplift');
-		let actual = document.getElementById('actual');
-		let discrepancy = document.getElementById('discrepancy');
-		
-		let meteredupliftVal = (meteredfuel / convfactor);
-        metereduplift.value = meteredupliftVal.toFixed(0);
-
-		let actualVal = (totall - fuelbefore);
-        actual.value = actualVal.toFixed(0);
+        meteredupliftf();
+    }
+    
+    function distribution(){
+        let requiredfuel = document.getElementById('requiredfuel');
+        let unidades = document.getElementsByName('fuelunits');
+        let fuelbefore = document.getElementById('fuelbefore');
         
-        if(actualVal !== 0){
-		    let discVal = ((metereduplift
+        let reqValue = Number(requiredfuel.value);
+
+        if(reqValue <= 7600){
+            document.getElementById("expectedfuel1").innerHTML = "LT=" + (reqValue/2).toFixed(0) + " CT=0 " + "RT=" + (reqValue/2).toFixed(0);
+        } else {
+            document.getElementById("expectedfuel1").innerHTML = "LT=3800 " + "CT=" + (reqValue-7600).toFixed(0) + " RT=3800";
+        }
+        
+        let diff = reqValue - Number(fuelbefore.value);
+        
+        if (unidades[0].checked){
+            let igal = (diff * 0.2820).toFixed(0);
+            document.getElementById("expectedfuel").innerHTML = "I.Gal exp= " + igal;
+        } else if (unidades[1].checked){
+            let igal = (diff * 0.3387).toFixed(0);
+            document.getElementById("expectedfuel").innerHTML = "US Gal exp= " + igal;
+        } else if (unidades[2].checked){
+            let igal = (diff * 1.2821).toFixed(0);
+            document.getElementById("expectedfuel").innerHTML =  "Lts exp= " + igal;
+        }
+    }
+    
+    function usedonground(){
+        let arrfuel = document.getElementById('arrfuel');
+        let fuelbefore = document.getElementById('fuelbefore');
+        let usedgnd = document.getElementById('usedgnd');
+        
+        usedgnd.value = (Number(arrfuel.value) - Number(fuelbefore.value)).toFixed(0);
+    }
+
+    function totalonboard(){
+        let fuelleft = document.getElementById('fuelleft');
+        let fuelcenter = document.getElementById('fuelcenter');
+        let fuelright = document.getElementById('fuelright');
+        let total = document.getElementById('total');
+        let totall = document.getElementById('totall');
+        
+        let sum = Number(fuelleft.value) + Number(fuelcenter.value) + Number(fuelright.value);
+        
+        total.value = sum;
+        totall.value = sum; // Importante: actualiza el campo oculto
+        
+        meteredupliftf();
+    }
+
+    function meteredupliftf(){
+        let metereduplift = document.getElementById('metereduplift');
+        let meteredfuel = document.getElementById('meteredfuel');
+        let convfactor = document.getElementById('convfactor');
+        let totall = document.getElementById('totall');
+        let fuelbefore = document.getElementById('fuelbefore');
+        let actual = document.getElementById('actual');
+        let discrepancy = document.getElementById('discrepancy');
+        
+        let meteredValue = Number(meteredfuel.value);
+        let convValue = Number(convfactor.value);
+        if(convValue === 0) convValue = 1; // Protección
+        
+        // Cálculo Metered Uplift
+        let upliftCalc = (meteredValue / convValue);
+        metereduplift.value = upliftCalc.toFixed(0);
+        
+        // Cálculo Actual Uplift
+        let actualCalc = (Number(totall.value) - Number(fuelbefore.value));
+        actual.value = actualCalc.toFixed(0);
+        
+        // Cálculo Discrepancy
+        if(actualCalc !== 0){
+            let discCalc = (((upliftCalc - actualCalc) / actualCalc) * 100);
+            discrepancy.value = discCalc.toFixed(2);
+            
+            // Cambio de color si excede 3%
+            if(Math.abs(discCalc) > 3) {
+                discrepancy.style.backgroundColor = "#ffcccc";
+                discrepancy.style.color = "red";
+            } else {
+                discrepancy.style.backgroundColor = "white";
+                discrepancy.style.color = "black";
+            }
+        } else {
+            discrepancy.value = "0";
+            discrepancy.style.backgroundColor = "white";
+            discrepancy.style.color = "black";
+        }
+    }
+</script>
+
+</body>
+</html>
